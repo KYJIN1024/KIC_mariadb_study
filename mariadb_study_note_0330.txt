@@ -1,0 +1,177 @@
+
+order by
+limit
+
+group by
+having
+
+1. excution plan
+2. query optimizer
+	-query tunning
+
+[DML]
+	insert
+	update
+	delete
+
+[DDL]
+	데이터베이스
+		create - database
+		drop - database
+		alter - table
+		create table
+		drop - table
+		
+
+	[테이블]
+
+	[문자형]
+		char	고정
+		varchar	가변 
+		tinytext / text / mediumtext / longtext
+	[숫자형]
+		정수 int
+		실수 decimal / double
+
+	[날짜형]	
+		datetime
+	이진데이터
+		X
+
+
+테이블명   tbl1
+	col1	varchar(2)
+
+
+
+create table emp2 as select * from emp; // 테이블 복제
+
+emp_dept
+	empno, ename, deptno, dname, loc
+
+
+create table empty_emp as select * from emp where 1 != 1;  // 빈테이블 생성
+
+
+select * from sample.dept;  //절대경로
+
+alter table emp_alter modify job varchar(20);
+
+desc. emp_alter
+
+alter table emp_alter2 modify job varchar(5);
+
+alter table emp_alter drop work;   //삭제
+
+show create table emp_alter   // create table구문으로 보임
+
+데이터입력하는 방법
+	1. insert into 테이블명 values (값1, 값2...)
+	2. 자료형크기
+	3. 문자열 데이터는 ''로 표기
+	4.insert into 테이블명(컬럼명, 컬럼명... values (값1, 값2...)
+
+
+ insert into dept value ( 50, '생산', '부산');   // 표안에 데이터 넣기  *문자열은 반드시 단일따옴표를 붙이기 / 숫자는 괜찮음 괄호안은 컬럼의 순서
+
+insert into dept value ( 50, '생산', '12312131231321545412121');
+ERROR 1406 (22001): Data too long for column 'loc' at row 1    // 데이터가 길 경우에는 에러표시
+
+필수요소  ( desc dept; //  필수요소 체크가능  )
+	null / not null
+
+insert into dept3 (deptno) values (50);   //   50번에 null값을 기준으로 데이터넣기
+
+insert into dept select * from sample.dept where deptno=30;   // 부분데이터만 별도로 집어넣어 줄수 있음 (벌키 인썰트)
+
+[데이터입력]
+	update 테이블명 set 컬럼명=값   -- 컬럼내용 전체 변경
+	update 테이블명 set 컬럼명=값 where 조건   -- 조건에 해당되는 부분만  변경
+
+update dept set loc='부산';   // loc의 값을 전부 부산으로 바꿈
+update dept set loc='대전' where deptno=30;   // 부서번호 30의  loc값은 대전으로 변경
+
+emp 테이블을 복사하고 직책이 clerk이고 부서번호가 20번인 사원에 대한 커미션을 1000으로 변경
+create table emp as select * from sample.emp;
+update emp set comm=1000.0 where deptno=20 and job='clerk';
+
+데이터 삭제
+	delete from 테이블명  // 테이블 전체의 내용
+	delete from 테이블명 where 조건 // 특정행 삭제
+
+delete from dept where deptno = 30;  // 부서번호 30인 데이터삭제
+delete from dept; // 전체 삭제
+
+*행을 지우는건 delete
+*열을 지우는건 update
+
+ update emp set job = null;  // job의 값을 null로 변경
+
+[제약조건] ? 테이블에 입력할 데이터 제한
+	키워드 : constraint
+
+1. 필수 입력 - not null
+2. 중복 방지 - unique
+3. 필수 + 중복 - primary key (테이블당 1개만 가능함)
+4. 참조 	- foreign key
+
+*값에 대한 검사 - check (mariadb x);
+
+[기술 방식]
+	테이블 단위 제약조건
+		테이블 선언
+		제약조건
+	컬럼 단위 제약조건
+		컬럼선언 제약조건
+
+null 과 키가 제약조건으로 기술됨
+
+insert into dept_u1 values ( 10, '생산', '부산');
+ERROR 1062 (23000): Duplicate entry '10' for key 'deptno'  // 중복데이터 배재
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
