@@ -1,0 +1,290 @@
+데이터베이스(DBMS)
+
+Oracle /MySQUL(maira DB)
+
+데이터베이스 운영 (dba)
+SQL(개발자) 
+	ANSI(표준SQL) +확장 SQL
+
+DML
+	select / insert / update / delete
+DDL 
+	create / alter / drp / rename / truncate
+DCL
+	grant / revoke
+TCL
+	commit / rollback / savepoint / 
+
+데이터베이스화 - ( 장부 ->프로그램화 )  
+	Extended ERP - SI업체..
+		사람 - 돈 - 물건
+		직원 - 고객
+
+		고객 - 물건(회사) crm(고객관계관리)
+
+ERP 
+	insert / update / delete 
+Extended ERP
+	select 
+
+서버에 접속하는방법**
+mysql -h 아이피 -u 아이디 -p
+[데이터베이스명을 알고있을경우] mysql -h 아이피 -u 아이디 -p 데이터베이스명
+
+데이터베이스 목록**
+show databases;
+
+특정 데이터베이스 사용**
+use 데이터베이스명
+
+테이블 목록**
+show tables
+
+특정 테이블구조**
+describe 테이블명;
+
+
+select 컬럼명
+from 테이블명
+where 조건
+order by 정렬
+limit
+
+함수	
+	단일행 함수 => 1:1
+		information - 시스템정보
+		numeric - 수학함수
+		string - 문자열 처리함수
+		date - 날짜 처리
+		Control - 제어
+	그룹함수 	=> 여러개:1
+		그룹화(group by 함수)
+	데이터갯수      count
+	최대값/최소값  min / max
+	합 	sum
+	평균 	avg
+	분산/ 표준편차
+
+모르는 데이터베이스
+select * from 테이블명;
+
+desc 테이블명;
+select count(*) from 테이블명;
+select 컬럼명 ... from 테이블명 limit 5;
+
+select max(sal), min(sal) from emp where deptno=30;// 30번부서의 최대 최소 급여
+
+select sal, ename from emp;
+// 그룹함수와 일반내용을 같이 쓰면 에러날 확률존재 ex)최대값
+
+ select sum(sal) from emp;  // 합계
+
+
+
+select count(empno), count(comm) from emp where deptno=30; //null을 제거하고 숫자출력
++--------------+-------------+
+| count(empno) | count(comm) |
++--------------+-------------+
+|            6 |           4 |
++--------------+-------------+
+
+ select count(*) from emp;  // 전컬럼의 갯수 
+
+사원정보에서 사원번호, 사원명, 급여 ,연봉을 출력
+	*연봉 sal*12 + comm
+
+select avg(comm), sum(comm)/count(comm),sum(comm)/count(*) from emp;
++------------+-----------------------+--------------------+
+| avg(comm)  | sum(comm)/count(comm) | sum(comm)/count(*) |
++------------+-----------------------+--------------------+
+| 550.000000 |            550.000000 |         157.142857 |
++------------+-----------------------+--------------------+
+
+ select avg( ifnull( comm, 0 )) from emp; // null 값을 0으로 변환하지 않으면 값오류가 생기므로 0으로 바꿔져야함
+
+select deptno, count(*) from emp group by deptno; //
+부서번호별 인원수
++--------+----------+
+| deptno | count(*) |
++--------+----------+
+|     10 |        3 |
+|     20 |        5 |
+|     30 |        6 |
++--------+----------+
+	
+select deptno, max(sal) from emp group by deptno; //부서번호별 최대급여
+
+ select deptno, job, sum(sal) from emp group by deptno, job;    // group by를 사용할 경우 정렬이 되서 나옴
++--------+-----------+----------+
+| deptno | job       | sum(sal) |
++--------+-----------+----------+
+|     10 | CLERK     |  1300.00 |
+|     10 | MANAGER   |  2450.00 |
+|     10 | PRESIDENT |  5000.00 |
+|     20 | ANALYST   |  6000.00 |
+|     20 | CLERK     |  1900.00 |
+|     20 | MANAGER   |  2975.00 |
+|     30 | CLERK     |   950.00 |
+|     30 | MANAGER   |  2850.00 |
+|     30 | SALESMAN  |  5600.00 |
++--------+-----------+----------+
+
+select deptno, job, sum(sal) from emp where sum(sal) >= 2000  group by deptno, job;
+ERROR 1111 (HY000): Invalid use of group function
+//where절 다음에는 그룹함수 사용불가
+
+ select deptno, job, sum(sal) from emp group by  deptno, job having sum(sal) >= 2000; // 요렇게 하면 사용가능
+
+select deptno, job, sum(sal) from emp where sal >= 2000 group by deptno, job;
+
++--------+-----------+----------+
+| deptno | job       | sum(sal) |
++--------+-----------+----------+
+|     10 | MANAGER   |  2450.00 |
+|     10 | PRESIDENT |  5000.00 |
+|     20 | ANALYST   |  6000.00 |
+|     20 | MANAGER   |  2975.00 |
+|     30 | MANAGER   |  2850.00 |
++--------+-----------+----------+
+
+단순
+복합 
+1.서브쿼리
+	쿼리안에 쿼리
+		단일행 - 1행 1열의 결과 중 다시 퀴리
+		복수행 - 여러행 1열의 결과
+ex)
+*최고급여를 받는 사원정보 출력
+	1. 최고 급여
+	2. 그 급여를  받는 사원
+* scott의 급여보다 많은 사원정보 출력
+	1. scott급여
+	2. 그 급여보다 많은 사원
+
+select sal from emp where ename='scott';
+
+
+부서별 최고급여를 받는 사원에 대한 정보 출력
+	1. 부서별 최고급여
+	2. 이 급여를 받는 사원
+
+select empno, ename, sal from emp where sal in (select max(sal) from emp group by deptno);
+
++-------+-------+---------+
+| empno | ename | sal     |
++-------+-------+---------+
+|  7698 | BLAKE | 2850.00 |
+|  7788 | SCOTT | 3000.00 |
+|  7839 | KING  | 5000.00 |
+|  7902 | FORD  | 3000.00 |
++-------+-------+---------+
+
+20번 부서의 사원이 속한 직책과 같은 사원들에 대한 정보
+
+select empno, ename, job from emp where job in ( select distinct job from emp where deptno = 20 );
+
++-------+--------+---------+
+| empno | ename  | job     |
++-------+--------+---------+
+|  7369 | SMITH  | CLERK   |
+|  7566 | JONES  | MANAGER |
+|  7698 | BLAKE  | MANAGER |
+|  7782 | CLARK  | MANAGER |
+|  7788 | SCOTT  | ANALYST |
+|  7876 | ADAMS  | CLERK   |
+|  7900 | JAMES  | CLERK   |
+|  7902 | FORD   | ANALYST |
+|  7934 | MILLER | CLERK   |
++-------+--------+---------+
+
+
+  < ANY : 서브쿼리의 리턴값 중 최대값
+  > ANY : 서브ㅝ리의 리턴값 중 최소값
+  < ALL : 서브쿼리의 리턴값 중 최소값
+  > ALL : 서브ㅝ리의 리턴값 중 최대값
+
+직책이 manager 사원들의 급여보다 큰 사원에 대한 정보
+1. 직책이 manager 사원들의 급여
+2. 이 급여보다 큰 보다 
+
+각 부서의 평균 급여 전체 보다 적은 사원들에 대한 정보출력
+
+[join]
+ select * from emp cross join dept; // emp를 중심으로  dept를묶음
+
+ select * from emp inner join dept;
+
+직책이 clerk인 사원에 대한 사원번호, 사원이름, 급여 , 부서이름, 부서위치 출력
+
+
+입사년도가 2011년인 사원에 대한 사원번호, 사원이름, 급여, 급여등급을 출력
+
+outer join - 한쪽 정보 완전히 출력 .. 나머지 연결만.. null( 연결되지않는 정보는 null)
+	right outer join ( 오른쪽중심의 왼쪽 연결)
+	left outer join ( 왼쪽중심의  오른쪽연결)
+	full outer join
+사원이 없는 부서(o)
+부서가 없는 사원
+
+주문이 없는 상품(o)
+상품이 없는 주문
+
+inner join
+outer join
+
+self join 
+	한 테이블 내부에 조인
+
+
+캡처 로또 번호 통계
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
